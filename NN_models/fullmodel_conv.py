@@ -146,7 +146,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
 
         data_in_flat = self.flat_data(data_in).squeeze().float()
         data_fin_flat = self.flat_data(data_fin).squeeze().float()
-        data_flat = torch.cat((data_in_flat, data_fin_flat), dim=1)
+        data_flat = torch.stack((data_in_flat, data_fin_flat),dim=1)
         theta = theta.squeeze().float()
         theta = theta + torch.Tensor([0.0, 0.0, 0.0, 3.0, 0.0, 0.0]).type_as(theta)
         theta = theta * torch.Tensor([0.05, 20, 20, 1.0 / 6.0, 40, 1.0 / 35.0]).type_as(theta)
