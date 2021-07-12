@@ -58,22 +58,22 @@ class ConditionalAutoEncoder(pl.LightningModule):
         self.data_process = nn.Sequential(
             nn.Conv2d(2,10,kernel_size =8,stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(7,8),stride=2),
+            nn.Conv2d(10,10,kernel_size=(8,7),stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(8,4),stride=2),
+            nn.Conv2d(10,10,kernel_size=(4,8),stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(9,4),stride=2),
+            nn.Conv2d(10,10,kernel_size=(4,9),stride=2),
             nn.Flatten(),
         )
 
         self.r1_data_process = nn.Sequential(
-            nn.Conv2d(2, 10, kernel_size=8, stride=2),
+            nn.Conv2d(2,10,kernel_size =8,stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10, 10, kernel_size=(7, 8), stride=2),
+            nn.Conv2d(10,10,kernel_size=(8,7),stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10, 10, kernel_size=(8, 4), stride=2),
+            nn.Conv2d(10,10,kernel_size=(4,8),stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10, 10, kernel_size=(9, 4), stride=2),
+            nn.Conv2d(10,10,kernel_size=(4,9),stride=2),
             nn.Flatten(),
         )
 
