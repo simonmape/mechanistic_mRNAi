@@ -118,7 +118,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         )
 
         self.r2_mu = nn.Sequential(
-            nn.Linear(42, 32),
+            nn.Linear(38, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
@@ -127,7 +127,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         )
 
         self.r2_sigma = nn.Sequential(
-            nn.Linear(42, 32),
+            nn.Linear(38, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
