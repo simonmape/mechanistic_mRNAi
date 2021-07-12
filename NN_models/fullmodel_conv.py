@@ -220,7 +220,7 @@ if __name__ == '__main__':
                                       root_dir="/data/math-multicellular-struct-devel/hert6124/pakman-develop/examples/DeepScratch/datadir3")
     training_size = int(np.floor(0.75 * len(dataset)))
     validation_size = len(dataset) - training_size
-    L = frange_cycle_linear(int(np.ceil(0.1 * training_size / args.batch_size)), 0, 1, 1, 0.7)
+    L = frange_cycle_linear(int(np.ceil(0.1 * training_size / args.batch_size)), 0, 1, 1, 0.85)
     train, val = random_split(dataset, [training_size, validation_size])
     autoencoder = ConditionalAutoEncoder(L, args.learning_rate)
 
