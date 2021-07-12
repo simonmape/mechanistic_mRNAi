@@ -10,4 +10,4 @@ module purge
 module load python/anaconda3/2019.03
 source activate ${DATA}/myenv
 
-python  fullmodel_conv.py --batch_size 64 --learning_rate 1e-3
+python  fullmodel_conv.py --batch_size 128 --learning_rate 1e-4
