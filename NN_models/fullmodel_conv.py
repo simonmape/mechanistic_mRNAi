@@ -135,7 +135,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         z_r1 = r1_dist.rsample()
 
         r2_means = self.r2_mu(torch.cat((self.data_process(data_flat), z_r1), dim=1))
-        r2_stds = torch.exp(self.r2_sigma(torch.cat((self.data_process(data_flat), z_r1), dim=1)))
+        r2_stds = torch.Tensor([0.05, 0.05, 0.05, 0.05, 0.05, 0.05]).type_as(theta)
         return r2_means, r2_stds
 
     def training_step(self, batch, batch_idx):
@@ -163,7 +163,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         KL_term = D.kl_divergence(q_dist, r1_dist)
 
         r2_means = self.r2_mu(torch.cat((self.data_process(data_flat), z_q), dim=1))
-        r2_stds = torch.exp(self.r2_sigma(torch.cat((self.data_process(data_flat), z_q), dim=1)))
+        r2_stds = torch.Tensor([0.05, 0.05, 0.05, 0.05, 0.05, 0.05]).type_as(theta)
 
         print(r1_means[0].detach(), q_means[0].detach())
         print(r2_means[0].detach(), theta[0].detach())
