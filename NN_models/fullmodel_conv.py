@@ -56,35 +56,43 @@ class ConditionalAutoEncoder(pl.LightningModule):
         self.schedule = torch.from_numpy(schedule)
 
         self.data_process = nn.Sequential(
-            nn.Conv2d(2, 10, (4, 5)),
-            nn.BatchNorm2d(4),
+            nn.Conv2d(2,10,kernel_size =8,stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10, 10, (4, 2)),
-            nn.ReLU(inplace=True)
+            nn.Conv2d(10,10,kernel_size=(7,8),stride=2),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(10,10,kernel_size=(8,4),stride=2),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(10,10,kernel_size=(9,4),stride=2),
+            nn.Flatten(),
         )
 
         self.r1_data_process = nn.Sequential(
-            nn.Conv2d(2,10,(4,5)),
-            nn.BatchNorm2d(4),
+            nn.Conv2d(2, 10, kernel_size=8, stride=2),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10, 10, (4, 2)),
-            nn.ReLU(inplace=True)
+            nn.Conv2d(10, 10, kernel_size=(7, 8), stride=2),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(10, 10, kernel_size=(8, 4), stride=2),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(10, 10, kernel_size=(9, 4), stride=2),
+            nn.Flatten(),
         )
 
         self.q_mu = nn.Sequential(
-            nn.Linear(38, 16),
+            nn.Linear(306, 16),
             nn.ReLU(),
             nn.Linear(16, 6)
         )
 
         self.r1_mu = nn.Sequential(
-            nn.Linear(10, 16),
+            nn.Linear(300, 128),
+            nn.ReLU(),
+            nn.Linear(128, 16),
             nn.ReLU(),
             nn.Linear(16, 6)
         )
 
         self.r2_mu = nn.Sequential(
-            nn.Linear(38, 32),
+            nn.Linear(306, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
@@ -93,7 +101,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         )
 
         self.r2_sigma = nn.Sequential(
-            nn.Linear(38, 32),
+            nn.Linear(306, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
@@ -120,9 +128,9 @@ class ConditionalAutoEncoder(pl.LightningModule):
         data_fin_flat = self.flat_data(data_fin).squeeze().float()
         data_flat = torch.stack((data_in_flat, data_fin_flat))
         theta = theta.squeeze().float()
-        print(r1_data_process(data_flat).size)
-        #r1_means = self.r1_mu(self.r1_data_process(data_flat))
-        #r1_stds = torch.ones_like(r1_means)
+        print(self.r1_data_process(data_flat).size)
+        r1_means = self.r1_mu(self.r1_data_process(data_flat))
+        r1_stds = torch.ones_like(r1_means)
         r1_dist = D.MultivariateNormal(r1_means, torch.diag_embed(r1_stds, dim1=-2, dim2=-1))
         z_r1 = r1_dist.rsample()
 
