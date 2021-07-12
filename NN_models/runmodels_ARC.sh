@@ -3,7 +3,6 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1             # number of gpus per node
-
 #SBATCH --time=120:00:00          # total run time limit (HH:MM:SS)
 
 
