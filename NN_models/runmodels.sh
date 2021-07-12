@@ -10,4 +10,4 @@ module purge
 module load python/anaconda3/2019.03
 source activate ${DATA}/myenv
 
-python  late_feeding_nobatch.py --batch_size 64 --learning_rate 1e-3
+python  big_latent_fixedvar.py --batch_size 64 --learning_rate 1e-3
