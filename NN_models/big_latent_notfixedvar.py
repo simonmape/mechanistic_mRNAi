@@ -60,31 +60,59 @@ class ConditionalAutoEncoder(pl.LightningModule):
             nn.ReLU(),
             nn.Linear(3840, 1024),
             nn.ReLU(),
-            nn.Linear(1024, 256),
+            nn.Linear(1024, 512),
             nn.ReLU(),
-            nn.Linear(256, 32)
+            nn.Linear(512, 128),
+            nn.ReLU(),
+            nn.Linear(128, 32)
         )
 
         self.r1_data_process = nn.Sequential(
             nn.Linear(3840, 3840),
             nn.ReLU(),
             nn.Linear(3840, 1024),
+            # nn.Dropout(p=0.2),
             nn.ReLU(),
-            nn.Linear(1024, 512),
+            nn.Linear(1024, 256),
+            # nn.Dropout(p=0.2),
             nn.ReLU(),
-            nn.Linear(512, 64),
+            nn.Linear(256, 128),
+            # nn.Dropout(p=0.2),
+            nn.ReLU(),
+            nn.Linear(128, 64),
+            # nn.Dropout(p=0.2),
             nn.ReLU(),
             nn.Linear(64, 10)
         )
 
         self.q_mu = nn.Sequential(
-            nn.Linear(38, 16),
+            nn.Linear(38, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Linear(16, 6)
+        )
+
+        self.q_sigma = nn.Sequential(
+            nn.Linear(38, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
             nn.ReLU(),
             nn.Linear(16, 6)
         )
 
         self.r1_mu = nn.Sequential(
-            nn.Linear(10, 16),
+            nn.Linear(10, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
+            nn.ReLU(),
+            nn.Linear(16, 6)
+        )
+
+        self.r1_sigma = nn.Sequential(
+            nn.Linear(10, 32),
+            nn.ReLU(),
+            nn.Linear(32, 16),
             nn.ReLU(),
             nn.Linear(16, 6)
         )
@@ -129,7 +157,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         theta = theta.squeeze().float()
 
         r1_means = self.r1_mu(self.r1_data_process(data_flat))
-        r1_stds = torch.ones_like(r1_means)
+        r1_stds = torch.exp(self.r1_sigma(self.r1_data_process(data_flat)))
         r1_dist = D.MultivariateNormal(r1_means, torch.diag_embed(r1_stds, dim1=-2, dim2=-1))
         z_r1 = r1_dist.rsample()
 
@@ -151,11 +179,11 @@ class ConditionalAutoEncoder(pl.LightningModule):
         theta = theta * torch.Tensor([0.05, 20, 20, 1.0 / 6.0, 40, 1.0 / 35.0]).type_as(theta)
 
         q_means = self.q_mu(torch.cat((self.data_process(data_flat), theta), dim=1))
-        q_stds = torch.ones_like(q_means)
+        q_stds = torch.exp(self.q_sigma(torch.cat((self.data_process(data_flat), theta), dim=1)))
         q_dist = D.MultivariateNormal(q_means, torch.diag_embed(q_stds, dim1=-2, dim2=-1))
 
         r1_means = self.r1_mu(self.r1_data_process(data_flat))
-        r1_stds = torch.ones_like(r1_means)
+        r1_stds = torch.exp(self.r1_sigma(self.r1_data_process(data_flat)))
         r1_dist = D.MultivariateNormal(r1_means, torch.diag_embed(r1_stds, dim1=-2, dim2=-1))
 
         z_q = q_dist.rsample()
