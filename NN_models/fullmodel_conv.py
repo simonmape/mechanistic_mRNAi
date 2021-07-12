@@ -109,8 +109,8 @@ class ConditionalAutoEncoder(pl.LightningModule):
         )
 
         self.flat_data = nn.Sequential(
-            nn.MaxPool2d(kernel_size=2),
-            nn.AvgPool2d(kernel_size=(3, 4)),
+            nn.AvgPool2d(kernel_size=2),
+            #nn.AvgPool2d(kernel_size=(3, 4)),
         )
 
         for m in self.modules():
@@ -126,7 +126,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
 
         data_in_flat = self.flat_data(data_in).squeeze().float()
         data_fin_flat = self.flat_data(data_fin).squeeze().float()
-        data_flat = torch.stack((data_in_flat, data_fin_flat))
+        data_flat = torch.stack((data_in_flat, data_fin_flat),dim=1)
         theta = theta.squeeze().float()
         print(self.r1_data_process(data_flat).size)
         r1_means = self.r1_mu(self.r1_data_process(data_flat))
