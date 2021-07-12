@@ -109,8 +109,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
 
         means = self.mu(self.data_process(data_flat))
         stds = torch.exp(self.sigma(self.data_process(data_flat)))
-        dist = D.MultivariateNormal(r1_means, torch.diag_embed(r1_stds, dim1=-2, dim2=-1))
-        z = r1_dist.rsample()
+        dist = D.MultivariateNormal(means, torch.diag_embed(stds, dim1=-2, dim2=-1))
         return theta, means, stds
 
     def training_step(self, batch, batch_idx):
@@ -128,7 +127,6 @@ class ConditionalAutoEncoder(pl.LightningModule):
         print(means[0].detach(), theta[0].detach())
         dist = D.MultivariateNormal(means, torch.diag_embed(stds, dim1=-2, dim2=-1))
         val_loss = -dist.log_prob(theta).mean()
-        # print(val_loss.item(),"True par: ", theta[0], "Simulated par: ", r2_means[0])
         self.log('val_loss', val_loss, sync_dist=True)
         return val_loss
 
