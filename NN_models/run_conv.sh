@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=conv_fixedvar    # create a short name for your job
+#SBATCH --job-name=conv_new    # create a short name for your job
 #SBATCH --nodes=1                # node count
 #SBATCH --ntasks=1               # total number of tasks across all nodes            # number of gpus per node
 #SBATCH --gres=gpu:1 --constraint='gpu_cc:3.7'
