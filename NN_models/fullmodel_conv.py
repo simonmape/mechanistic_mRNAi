@@ -55,44 +55,89 @@ class ConditionalAutoEncoder(pl.LightningModule):
         self.learning_rate = learning_rate
         self.schedule = torch.from_numpy(schedule)
 
-        self.data_process = nn.Sequential(
-            nn.Conv2d(2,10,kernel_size =8,stride=2),
+        # self.data_process = nn.Sequential(
+        #     nn.Conv2d(2,10,kernel_size =8,stride=2),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(10,10,kernel_size=(8,7),stride=2),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(10,10,kernel_size=(4,8),stride=2),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(10,10,kernel_size=(4,9),stride=2),
+        #     nn.Flatten(),
+        # )
+        #
+        # self.r1_data_process = nn.Sequential(
+        #     nn.Conv2d(2,10,kernel_size =8,stride=2),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(10,10,kernel_size=(8,7),stride=2),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(10,10,kernel_size=(4,8),stride=2),
+        #     nn.ReLU(inplace=True),
+        #     nn.Conv2d(10,10,kernel_size=(4,9),stride=2),
+        #     nn.Flatten(),
+        # )
+
+        self.q_data_process = nn.Sequential(
+            nn.Conv2d(2, 10, kernel_size=5, stride=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(8,7),stride=2),
+            nn.Conv2d(10, 10, kernel_size=3, stride=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(4,8),stride=2),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(10, 10, kernel_size=3, stride=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(4,9),stride=2),
+            nn.AvgPool2d(kernel_size=(2,3)),
             nn.Flatten(),
+            nn.Linear(450,450),
+            nn.ReLU()
         )
 
         self.r1_data_process = nn.Sequential(
-            nn.Conv2d(2,10,kernel_size =8,stride=2),
+            nn.Conv2d(2, 10, kernel_size=5, stride=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(8,7),stride=2),
+            nn.Conv2d(10, 10, kernel_size=3, stride=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(4,8),stride=2),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(10, 10, kernel_size=3, stride=1),
             nn.ReLU(inplace=True),
-            nn.Conv2d(10,10,kernel_size=(4,9),stride=2),
+            nn.AvgPool2d(kernel_size=(2, 3)),
             nn.Flatten(),
+            nn.Linear(450, 450),
+            nn.ReLU()
         )
 
+        self.r2_data_process = nn.Sequential(
+            nn.Conv2d(2, 10, kernel_size=5, stride=1),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(10, 10, kernel_size=3, stride=1),
+            nn.ReLU(inplace=True),
+            nn.AvgPool2d(kernel_size=2),
+            nn.Conv2d(10, 10, kernel_size=3, stride=1),
+            nn.ReLU(inplace=True),
+            nn.AvgPool2d(kernel_size=(2, 3)),
+            nn.Flatten(),
+            nn.Linear(450, 450),
+            nn.ReLU()
+        )
+
+
         self.q_mu = nn.Sequential(
-            nn.Linear(306, 16),
+            nn.Linear(456, 128),
             nn.ReLU(),
-            nn.Linear(16, 6)
+            nn.Linear(128, 6)
         )
 
         self.r1_mu = nn.Sequential(
-            nn.Linear(300, 128),
+            nn.Linear(450, 250),
             nn.ReLU(),
-            nn.Linear(128, 16),
+            nn.Linear(250,128),
             nn.ReLU(),
-            nn.Linear(16, 6)
+            nn.Linear(128, 64),
+            nn.ReLU(),
+            nn.Linear(64, 6)
         )
 
         self.r2_mu = nn.Sequential(
-            nn.Linear(306, 32),
+            nn.Linear(456, 32),
             nn.ReLU(),
             nn.Linear(32, 16),
             nn.ReLU(),
@@ -100,17 +145,9 @@ class ConditionalAutoEncoder(pl.LightningModule):
             nn.Sigmoid()
         )
 
-        self.r2_sigma = nn.Sequential(
-            nn.Linear(306, 32),
-            nn.ReLU(),
-            nn.Linear(32, 16),
-            nn.ReLU(),
-            nn.Linear(16, 6),
-        )
-
         self.flat_data = nn.Sequential(
             nn.AvgPool2d(kernel_size=2),
-            #nn.AvgPool2d(kernel_size=(3, 4)),
+            nn.AvgPool2d(kernel_size=(3, 4)),
         )
 
         for m in self.modules():
@@ -128,13 +165,13 @@ class ConditionalAutoEncoder(pl.LightningModule):
         data_fin_flat = self.flat_data(data_fin).squeeze().float()
         data_flat = torch.stack((data_in_flat, data_fin_flat),dim=1)
         theta = theta.squeeze().float()
-        print(self.r1_data_process(data_flat).size)
+
         r1_means = self.r1_mu(self.r1_data_process(data_flat))
         r1_stds = torch.ones_like(r1_means)
         r1_dist = D.MultivariateNormal(r1_means, torch.diag_embed(r1_stds, dim1=-2, dim2=-1))
         z_r1 = r1_dist.rsample()
 
-        r2_means = self.r2_mu(torch.cat((self.data_process(data_flat), z_r1), dim=1))
+        r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), z_r1), dim=1))
         r2_stds = torch.Tensor([0.05, 0.05, 0.05, 0.05, 0.05, 0.05]).type_as(theta)
         return r2_means, r2_stds
 
@@ -151,7 +188,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         theta = theta + torch.Tensor([0.0, 0.0, 0.0, 3.0, 0.0, 0.0]).type_as(theta)
         theta = theta * torch.Tensor([0.05, 20, 20, 1.0 / 6.0, 40, 1.0 / 35.0]).type_as(theta)
 
-        q_means = self.q_mu(torch.cat((self.data_process(data_flat), theta), dim=1))
+        q_means = self.q_mu(torch.cat((self.q_data_process(data_flat), theta), dim=1))
         q_stds = torch.ones_like(q_means)
         q_dist = D.MultivariateNormal(q_means, torch.diag_embed(q_stds, dim1=-2, dim2=-1))
 
@@ -162,7 +199,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         z_q = q_dist.rsample()
         KL_term = D.kl_divergence(q_dist, r1_dist)
 
-        r2_means = self.r2_mu(torch.cat((self.data_process(data_flat), z_q), dim=1))
+        r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), z_q), dim=1))
         r2_stds = torch.Tensor([0.05, 0.05, 0.05, 0.05, 0.05, 0.05]).type_as(theta)
 
         print(r1_means[0].detach(), q_means[0].detach())
@@ -184,7 +221,7 @@ class ConditionalAutoEncoder(pl.LightningModule):
         r2_means, r2_stds = self.forward(batch)
         r2_dist = D.MultivariateNormal(r2_means, torch.diag_embed(r2_stds, dim1=-2, dim2=-1))
         val_loss = -r2_dist.log_prob(theta).mean()
-        # print(val_loss.item(),"True par: ", theta[0], "Simulated par: ", r2_means[0])
+        print(val_loss.item(),"True par: ", theta[0], "Simulated par: ", r2_means[0])
         self.log('val_loss', val_loss, sync_dist=True)
         return val_loss
 
