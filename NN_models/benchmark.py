@@ -25,7 +25,7 @@ predictions = np.zeros((500 ,6))
 truepar = np.zeros((500 ,6))
 
 for (idx, batch) in enumerate(loaded_data):
-    i f(idx <250):
+    if(idx <250):
         print(idx)
         means, stds = model.forward(batch)
         means = means.detach().numpy()
@@ -37,7 +37,7 @@ for (idx, batch) in enumerate(loaded_data):
         truepar[2 * idx] = batch["par"][0]
         truepar[2 * idx + 1] = batch["par"][1]
 
-    if (idx == 250):
+    if(idx == 250):
         break
 
 np.savetxt("predictions_direct.txt", predictions)
