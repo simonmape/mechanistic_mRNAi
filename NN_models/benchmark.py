@@ -27,7 +27,7 @@ truepar = np.zeros((500 ,6))
 for (idx, batch) in enumerate(loaded_data):
     if(idx <250):
         print(idx)
-        means, stds = model.forward(batch)
+        theta, means, stds = model.forward(batch)
         means = means.detach().numpy()
         stds = stds.detach().numpy()
         predictions[2 * idx] = means[0]
