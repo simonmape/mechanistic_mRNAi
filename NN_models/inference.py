@@ -16,7 +16,7 @@ PATH = "/data/math-multicellular-struct-devel/hert6124/mechanistic_mRNAi/NN_mode
 L = np.array([0,0.1])
 
 model = ConditionalAutoEncoder.load_from_checkpoint(PATH,schedule=L,learning_rate=1e-3)
-dataset = MechanisticModelDataset(csv_file="mock_data.csv", root_dir="/data/math-multicellular-struct-devel/hert6124/pakman-develop/examples/DeepScratch/datadir3")
+dataset = MechanisticModelDataset(csv_file="/data/math-multicellular-struct-devel/hert6124/mock_data.csv", root_dir="/data/math-multicellular-struct-devel/hert6124/pakman-develop/examples/DeepScratch/datadir3")
 
 
 loaded_data = DataLoader(dataset, 2, False)
