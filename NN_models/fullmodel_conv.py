@@ -171,7 +171,9 @@ class ConditionalAutoEncoder(pl.LightningModule):
         r1_dist = D.MultivariateNormal(r1_means, torch.diag_embed(r1_stds, dim1=-2, dim2=-1))
         z_r1 = r1_dist.rsample()
 
-        r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), z_r1), dim=1))
+        #r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), z_r1), dim=1))
+        r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), r1_means), dim=1))
+
         r2_stds = torch.Tensor([0.05, 0.05, 0.05, 0.05, 0.05, 0.05]).type_as(theta)
         return r2_means, r2_stds
 
@@ -199,7 +201,8 @@ class ConditionalAutoEncoder(pl.LightningModule):
         z_q = q_dist.rsample()
         KL_term = D.kl_divergence(q_dist, r1_dist)
 
-        r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), z_q), dim=1))
+        r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), q_means), dim=1))
+        #r2_means = self.r2_mu(torch.cat((self.r2_data_process(data_flat), z_q), dim=1))
         r2_stds = torch.Tensor([0.05, 0.05, 0.05, 0.05, 0.05, 0.05]).type_as(theta)
 
         print(r1_means[0].detach(), q_means[0].detach())
