@@ -40,5 +40,5 @@ for (idx, batch) in enumerate(loaded_data):
     if(idx == 250):
         break
 
-np.savetxt("predictions_direct.txt", predictions)
-np.savetxt("truepar_direct.txt", truepar)
+np.savetxt("predictions_direct2.txt", predictions)
+np.savetxt("truepar_direct2.txt", truepar)

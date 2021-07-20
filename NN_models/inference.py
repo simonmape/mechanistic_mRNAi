@@ -35,4 +35,4 @@ for (idx, batch) in enumerate(loaded_data):
     if(idx == 242):
         break
 
-np.savetxt("mock_inference_direct.txt", predictions)
+np.savetxt("mock_inference_direct2.txt", predictions)
