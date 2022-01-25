@@ -1,0 +1,11 @@
+Notes on using the development branch of Pakman for ABC
+
+#### BUILD INSTRUCTIONS ####
+* This project uses a modification of Pakman to perform ABC with an adaptive perturbation kernel between each generation in ABC
+* Source code for the modified branch is avalable in the pakman-develop.tar.gz folder
+* Build for the source code is identical for building Pakman following the instructions on https://github.com/ThomasPak/pakman
+* Use cmake on the head directory for the build
+
+
+###USE INSTRUCTIONS ###
+You will see that the perturbation kernels supplied in the ABC-SMC folder accept a matrix with covariances. This matrix is output by the ABC-SMC implementation, and is based on a normal perturbation kernel. See the paper for full details. If you wish to use a sampler that is not adaptive, you can input a constant matrix (scaled) such that the perturbation kernel is equal in all generations. 
