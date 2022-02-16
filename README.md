@@ -1,3 +1,5 @@
 # Minibatch ABC
 
-This is the repository for "Mechanistic modeling of density-dependent interactions in an mRNAi screen". This is work in progress, so stay tuned for the preprint!
+This is the repository for "Efficient Bayesian inference for mechanistic modelling with high-throughput data". 
+
+https://www.biorxiv.org/content/10.1101/2022.02.14.480336v1
